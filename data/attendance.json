@@ -1,0 +1,11 @@
+{
+  "config": {
+    "group": "A",
+    "studentName": "GTBIT 2nd Year IT-1",
+    "targetThreshold": 75,
+    "minWarningThreshold": 60
+  },
+  "baseStats": {},
+  "dailyRecords": {},
+  "customClasses": {}
+}

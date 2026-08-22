@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>GTBIT Attendance Tracker | GGSIPU</title>
+  <meta name="description" content="Local GGSIPU attendance tracking & recovery recommendation system for GTBIT IT-1 over Tailscale">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Styles -->
+  <link rel="stylesheet" href="style.css">
+  <!-- QR Code Library CDN for phone scanning -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Top Header -->
+    <header class="app-header">
+      <div class="header-left">
+        <div class="brand-logo">
+          <span class="logo-icon">📊</span>
+          <div>
+            <h1 class="brand-title">GTBIT Attendance</h1>
+            <p class="brand-sub">2nd Year IT-1 (Group <span id="activeGroupBadge">A</span>)</p>
+          </div>
+        </div>
+      </div>
+      <div class="header-right">
+        <button id="qrModalBtn" class="btn btn-icon" title="Connect Phone via Tailscale" aria-label="Connect Phone">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h6v6H3zM15 3h6v6h-6zM3 15h6v6H3zM15 15h2v2h-2zM19 15h2v2h-2zM15 19h2v2h-2zM19 19h2v2h-2z"/></svg>
+          <span class="btn-text-sm">Phone Connect</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Overall Aggregate Banner -->
+    <section class="overall-banner" id="overallBanner">
+      <div class="overall-left">
+        <div class="overall-progress-ring">
+          <svg class="progress-ring-svg" width="76" height="76">
+            <circle class="progress-ring-bg" cx="38" cy="38" r="32" />
+            <circle class="progress-ring-circle" id="overallCircle" cx="38" cy="38" r="32" />
+          </svg>
+          <div class="overall-ring-text">
+            <span id="overallPercentage">0%</span>
+          </div>
+        </div>
+        <div class="overall-details">
+          <div class="overall-status-pill" id="overallStatusPill">Loading stats...</div>
+          <p class="overall-subtext">
+            Attended: <strong id="overallAttended">0</strong> / <span id="overallHeld">0</span> classes
+          </p>
+        </div>
+      </div>
+      <div class="overall-quick-alerts" id="overallQuickAlerts">
+        <!-- Injected dynamically -->
+      </div>
+    </section>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs" role="tablist">
+      <button class="tab-btn active" data-tab="tab-today" role="tab" id="tabBtnToday">
+        <span class="tab-icon">📋</span>
+        <span class="tab-label">Timetable</span>
+      </button>
+      <button class="tab-btn" data-tab="tab-calendar" role="tab" id="tabBtnCalendar">
+        <span class="tab-icon">🗓️</span>
+        <span class="tab-label">Calendar</span>
+      </button>
+      <button class="tab-btn" data-tab="tab-subjects" role="tab" id="tabBtnSubjects">
+        <span class="tab-icon">🎯</span>
+        <span class="tab-label">Subjects</span>
+      </button>
+      <button class="tab-btn" data-tab="tab-simulator" role="tab" id="tabBtnSimulator">
+        <span class="tab-icon">🔮</span>
+        <span class="tab-label">Simulator</span>
+      </button>
+    </nav>
+
+    <!-- TAB 1: DAILY TIMETABLE -->
+    <main class="tab-content active" id="tab-today">
+      <!-- Date Navigator Bar -->
+      <div class="date-navigator-card">
+        <div class="date-nav-controls">
+          <button class="btn btn-icon btn-nav" id="prevDayBtn" title="Previous Day" aria-label="Previous Day">‹</button>
+          
+          <div class="date-display-wrapper">
+            <input type="date" id="datePickerInput" class="hidden-date-input" aria-label="Select Date">
+            <button class="date-display-btn" id="datePickerBtn">
+              <span class="date-day-name" id="displayDayName">Today</span>
+              <span class="date-formatted" id="displayFormattedDate">Loading...</span>
+              <span class="date-calendar-icon">🗓️</span>
+            </button>
+          </div>
+
+          <button class="btn btn-icon btn-nav" id="nextDayBtn" title="Next Day" aria-label="Next Day">›</button>
+        </div>
+
+        <div class="date-quick-actions">
+          <button class="btn btn-chip" id="todayQuickBtn">Jump to Today</button>
+          <button class="btn btn-chip" id="markAllPresentBtn">✅ All Present</button>
+          <button class="btn btn-chip" id="markAllCancelledBtn">⛔ Mass Bunk / Holiday</button>
+        </div>
+      </div>
+
+      <!-- Schedule Slots Container -->
+      <section class="schedule-section">
+        <div class="section-header">
+          <h2 class="section-title" id="scheduleHeading">Scheduled Classes</h2>
+          <span class="section-badge" id="dayClassCount">0 classes</span>
+        </div>
+
+        <div class="slots-list" id="slotsContainer">
+          <!-- Populated dynamically -->
+          <div class="loading-state">Loading schedule...</div>
+        </div>
+      </section>
+    </main>
+
+    <!-- TAB 2: INTERACTIVE CALENDAR -->
+    <section class="tab-content" id="tab-calendar">
+      <div class="card calendar-card">
+        <div class="calendar-header-nav">
+          <button class="btn btn-icon btn-nav" id="calPrevMonthBtn" title="Previous Month">‹</button>
+          <div class="calendar-month-title-wrapper">
+            <h2 class="calendar-month-title" id="calMonthTitle">August 2026</h2>
+            <button class="btn btn-chip" id="calTodayBtn">This Month</button>
+          </div>
+          <button class="btn btn-icon btn-nav" id="calNextMonthBtn" title="Next Month">›</button>
+        </div>
+
+        <div class="calendar-legend">
+          <span class="legend-item"><span class="legend-dot perfect"></span> Present</span>
+          <span class="legend-item"><span class="legend-dot critical"></span> Absent</span>
+          <span class="legend-item"><span class="legend-dot holiday"></span> Bunk/Holiday</span>
+          <span class="legend-item"><span class="legend-dot unmarked"></span> Scheduled</span>
+        </div>
+
+        <div class="calendar-grid-wrapper">
+          <div class="calendar-weekdays">
+            <span>Sun</span>
+            <span>Mon</span>
+            <span>Tue</span>
+            <span>Wed</span>
+            <span>Thu</span>
+            <span>Fri</span>
+            <span>Sat</span>
+          </div>
+          <div class="calendar-days-grid" id="calendarDaysGrid">
+            <!-- Injected dynamically -->
+            <div class="loading-state">Loading calendar...</div>
+          </div>
+        </div>
+
+        <p class="calendar-hint">💡 Tap any date on the calendar to instantly view and modify attendance for that day!</p>
+      </div>
+    </section>
+
+    <!-- TAB 3: SUBJECTS & RECOMMENDATIONS -->
+    <section class="tab-content" id="tab-subjects">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Subject Breakdown & Goals</h2>
+          <p class="section-desc">Track theory subjects with smart recovery recommendations</p>
+        </div>
+      </div>
+
+      <!-- Recommendation Summary Callout -->
+      <div class="recommendations-overview" id="recommendationsOverview">
+        <!-- Injected dynamically -->
+      </div>
+
+      <!-- Subject Cards Grid -->
+      <div class="subjects-grid" id="subjectsGrid">
+        <!-- Populated dynamically -->
+        <div class="loading-state">Loading subjects...</div>
+      </div>
+    </section>
+
+    <!-- TAB 4: WHAT-IF SIMULATOR & SETTINGS -->
+    <section class="tab-content" id="tab-simulator">
+      <div class="card simulator-card">
+        <h2 class="card-title">🔮 "What-If" Bunk & Attendance Simulator</h2>
+        <p class="card-desc">Simulate attending or skipping upcoming classes to see how your % will change.</p>
+
+        <div class="simulator-form">
+          <div class="form-group">
+            <label for="simSubjectSelect">Select Subject</label>
+            <select id="simSubjectSelect" class="form-control">
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+
+          <div class="sim-grid">
+            <div class="sim-box">
+              <label for="simAttendCount">Classes to Attend</label>
+              <div class="counter-input">
+                <button class="counter-btn" id="simAttendMinus">-</button>
+                <input type="number" id="simAttendCount" value="0" min="0" max="50">
+                <button class="counter-btn" id="simAttendPlus">+</button>
+              </div>
+            </div>
+
+            <div class="sim-box">
+              <label for="simBunkCount">Classes to Bunk (Absent)</label>
+              <div class="counter-input">
+                <button class="counter-btn" id="simBunkMinus">-</button>
+                <input type="number" id="simBunkCount" value="0" min="0" max="50">
+                <button class="counter-btn" id="simBunkPlus">+</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="sim-result-card" id="simResultBox">
+            <div class="sim-result-header">
+              <span>Projected Attendance</span>
+              <strong class="sim-projected-pct" id="simProjectedPct">--%</strong>
+            </div>
+            <p class="sim-result-diff" id="simResultDiff">Select a subject to simulate</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings & Base Seed Card -->
+      <div class="card settings-card">
+        <h2 class="card-title">⚙️ Settings & Manual Seed</h2>
+        <p class="card-desc">Adjust baseline counts or switch lab groups.</p>
+
+        <div class="form-group">
+          <label>Lab Group</label>
+          <div class="group-toggle-container">
+            <button class="btn btn-toggle active" id="groupABtn" data-group="A">Group A (IT1_A)</button>
+            <button class="btn btn-toggle" id="groupBBtn" data-group="B">Group B (IT1_B)</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Direct Seed / Edit Subject Stats</label>
+          <p class="helper-text">Have past attendance from earlier in the semester? Enter it here:</p>
+          <div class="seed-row">
+            <select id="seedSubjectSelect" class="form-control"></select>
+            <input type="number" id="seedPresentInput" class="form-control" placeholder="Attended (P)" min="0">
+            <input type="number" id="seedTotalInput" class="form-control" placeholder="Total (T)" min="0">
+            <button class="btn btn-primary" id="saveSeedBtn">Save</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- QR Code & Tailscale Modal -->
+  <div class="modal-overlay" id="qrModal" hidden>
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">📱 Connect via Tailscale</h3>
+        <button class="modal-close-btn" id="closeQrModalBtn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">
+          Scan this QR code with your phone (connected to your Tailscale network) to manage your attendance on the go:
+        </p>
+        
+        <div class="qr-canvas-wrapper">
+          <canvas id="qrCanvas"></canvas>
+        </div>
+
+        <div class="network-links" id="networkLinksContainer">
+          <!-- Populated dynamically -->
+        </div>
+
+        <div class="tailscale-tip">
+          <strong>Tip:</strong> Ensure Tailscale is active on your phone and logged into the same Tailnet.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Subject Modal -->
+  <div class="modal-overlay" id="editSubjectModal" hidden>
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title" id="editModalTitle">Edit Subject Stats</h3>
+        <button class="modal-close-btn" id="closeEditModalBtn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">Modify base historical counts for this subject:</p>
+        <input type="hidden" id="editModalSubjectCode">
+        
+        <div class="form-group">
+          <label>Attended Classes (Present)</label>
+          <input type="number" id="editModalPresent" class="form-control" min="0">
+        </div>
+
+        <div class="form-group">
+          <label>Total Classes Held</label>
+          <input type="number" id="editModalTotal" class="form-control" min="0">
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-secondary" id="cancelEditModalBtn">Cancel</button>
+          <button class="btn btn-primary" id="saveEditModalBtn">Save Changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Scripts -->
+  <script src="app.js"></script>
+</body>
+</html>
