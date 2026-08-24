@@ -5,6 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { db } from './src/db.js';
 import { SUBJECTS_META, WEEKLY_TIMETABLE, getScheduleForDay } from './src/timetable.js';
+import { runDailyGitPush, generateDailySummary } from './scripts/daily_sync.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -12,6 +13,32 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 8017;
 const HOST = '0.0.0.0';
+
+// Automated daily push at exactly 5:00 PM (17:00 IST)
+function scheduleDaily5pmPush() {
+  const now = new Date();
+  const target = new Date();
+  target.setHours(17, 0, 0, 0);
+
+  if (now.getTime() >= target.getTime()) {
+    target.setDate(target.getDate() + 1);
+  }
+
+  const delay = target.getTime() - now.getTime();
+  const hoursUntil = (delay / (1000 * 60 * 60)).toFixed(2);
+  console.log(`⏰ [AutoPusher] Daily 5:00 PM GitHub sync scheduled in ${hoursUntil} hours (at ${target.toLocaleTimeString()})`);
+
+  setTimeout(() => {
+    try {
+      console.log('⏰ [AutoPusher] Running automated 5:00 PM GitHub push...');
+      runDailyGitPush();
+    } catch (err) {
+      console.error('❌ [AutoPusher] Scheduled push error:', err);
+    }
+    // Schedule next day
+    scheduleDaily5pmPush();
+  }, delay);
+}
 
 app.use(cors());
 app.use(express.json());
@@ -209,4 +236,7 @@ app.listen(PORT, HOST, () => {
     }
   }
   console.log('=============================================================\n');
+
+  // Start the daily 5:00 PM auto-pusher
+  scheduleDaily5pmPush();
 });
