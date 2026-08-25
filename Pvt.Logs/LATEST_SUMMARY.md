@@ -1,6 +1,6 @@
 # 📊 GTBIT Attendance Daily Summary - 2026-08-25
 
-**Generated on:** 8/25/2026, 2:14:38 PM (IST)  
+**Generated on:** 8/25/2026, 5:00:00 PM (IST)  
 **Day:** Tuesday  
 **Overall Attendance:** **100%** (0/0 classes attended)
 
