@@ -6,6 +6,13 @@
     "minWarningThreshold": 60
   },
   "baseStats": {},
-  "dailyRecords": {},
+  "dailyRecords": {
+    "2026-08-31": {
+      "mon_10_11": "present",
+      "mon_11_12": "present",
+      "mon_1230_1430_A": "present",
+      "mon_1430_1530": "absent"
+    }
+  },
   "customClasses": {}
 }
