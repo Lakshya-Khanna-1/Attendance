@@ -12,6 +12,13 @@
       "mon_11_12": "present",
       "mon_1230_1430_A": "present",
       "mon_1430_1530": "absent"
+    },
+    "2026-09-01": {
+      "tue_09_10": "present",
+      "tue_10_11": "present",
+      "tue_11_12": "present",
+      "tue_1230_1330": "present",
+      "tue_1330_1530_A": "cancelled"
     }
   },
   "customClasses": {}
