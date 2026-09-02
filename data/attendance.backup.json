@@ -11,7 +11,7 @@
       "mon_10_11": "present",
       "mon_11_12": "present",
       "mon_1230_1430_A": "present",
-      "mon_1430_1530": "absent"
+      "mon_1430_1530": "cancelled"
     },
     "2026-09-01": {
       "tue_09_10": "present",
