@@ -1,19 +1,20 @@
-# 📊 GTBIT Attendance Daily Summary - 2026-10-22
+# 📊 GTBIT Attendance Daily Summary - 2026-10-23
 
-**Generated on:** 10/22/2026, 5:00:01 PM (IST)  
-**Day:** Thursday  
+**Generated on:** 10/23/2026, 5:00:00 PM (IST)  
+**Day:** Friday  
 **Overall Attendance:** **100%** (7/7 classes attended)
 
 > 🟢 **SAFE ZONE:** Attendance is $\ge 75%$. You currently have **2 safe bunks** available.
 
-## 📋 Classes for Today (Thursday, 2026-10-22)
+## 📋 Classes for Today (Friday, 2026-10-23)
 
 | Time | Subject | Teacher | Room | Status |
 | :--- | :--- | :--- | :--- | :--- |
-| 09:00 - 10:00 | **DLCD_Th** (theory) | Mr. Gurmeet Singh | LEC_11 | ⚪ Unmarked |
-| 10:00 - 11:00 | **DS_Th** (theory) | Ms. Debleena | LEC_11 | ⚪ Unmarked |
-| 11:00 - 12:00 | **CM_Th** (theory) | Ms. Seema (App.) | LEC_11 | ⚪ Unmarked |
-| 12:30 - 01:30 | **DM_Th** (theory) | Mr. Navjot Singh | LEC_11 | ⚪ Unmarked |
+| 09:00 - 10:00 | **DS_Th** (theory) | Ms. Debleena | LEC_11 | ⚪ Unmarked |
+| 10:00 - 11:00 | **CM_Th** (theory) | Ms. Seema (App.) | LEC_11 | ⚪ Unmarked |
+| 11:00 - 12:00 | **DLCD_Th** (theory) | Mr. Gurmeet Singh | LEC_11 | ⚪ Unmarked |
+| 12:30 - 02:30 | **CM_i_Lab** (lab) | MATHS_FAC2 | LAB_13 | ⚪ Unmarked |
+| 02:30 - 03:30 | **OOPs_Th** (theory) | Dr. P.S. Bedi | LEC_11 | ⚪ Unmarked |
 
 ## 🎯 Cumulative Subject Breakdown & Recovery Actions
 
